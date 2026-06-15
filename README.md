@@ -39,6 +39,30 @@ The direct path identification exploits the fact that the estimated pair of AoA 
 
 The localisation algorithm combines RSSI based distance estimate with the estimation and likelihood of direct paths' AoA (not ToF since estimated ToF is not true ToF) received from all 3 APs (access points) to localise the target. 
 
+#### DeepFi by Wang et al:
+DeepFi follows a slightly similar pproach in using CSI rather than RSSI for localisation of targets in indoor, GPS-denied environments. They present 3 hypotheses - first is that CSI values for the same location are stable (also demonstrated by researchers modelling SpotFi). Second is multipath effects cause clusters of subcarrier variation in particular frequency bands, the number of clusters correspinds to less or more of multipath effect. Third being CSI captured at different antennas can be treated as seperate signals (and hence act as seperate data points while training their deep learning model) since the CSI for the same packets also differ widely (due to phase difference attributed to AoA at different antennas as shown in the paper presenting SpotFi, however, they don't utilise AoA or phase difference).
+
+The system utilises a vector of 90 CSI values (3 antennas * 30 subcarriers) for a single packet reception. One key difference between SpotFi and DeepFi is that they only use the amplitude responses for these 90 values for fingerprinting the inddor environment. The deep learning model uses 4 hidden layers with multiple neurons, and the weights between these layers are pretrained. The pretrained model is fine-tuned and the weights are used in the localisation of unknown environments thorugh unrolling. Unrolling is the process of feeding in data captured from unknown environments to through the trained weighted model to find features like furniture in the indoor environment.
+
+The weights are trained using a greedy learning algorithm. It basically tries to find the weights at each layer in sequential order, freezes the weights at first layer and then uses those for determining weights for further layers. The localisation is then conducted through a bayesian probbality model which estimated the possibility of a mobile device being in multiple locations and chooses the location with the highest probability.
+
+DeepFi achieves a precision of about 0.95 metres in a lower multipath effect environment which outperforms techniques based on RSSI values however, it is not as precise as SpotFi due to only use of amplitude signals. 
+
+#### WiFi Sensing with Channel State Information SUrvey by Ma et al
+This is a survey that goes over multiple methods of CSI decoding including modeling based, learning based and hybrid alorithms. It also covers signal pre-processing like noise reduction, signal transforms and signal extraction and practical applications of WiFi CSI.
+
+Noise reduction is done using phase offset removal, phase offset is caused by known and somewhat measurable effects like sampling time and frequency offsets, and outliers can be removed by generic averaging techniques like moving averages and filters. Signal transform techniques are fourier transforms and discrete wavelet transforms. Signal extraction includes compression, filtering and composition using signals from multiple antennas, frequency bands and packets.
+
+Sensing algorithms include modelling based, learning based and hybrid algorithms. Modelling based are hardware heavy solutions that rely on accurate measurements and simple algorthms, but they require a lot of signal processing and expensive equipment for accurate data capture. Learning based algorithms follow the software and data heavy approach with the use of millions of data points to extract features and doesn't require very high level of signal processing, however it does require high compute. Hybrid utilise modelling based approach with lower precision data for coarse extraction and learning based approaches for fine tuning of feature extraction.
+
+Key applications outlined were 
+- Human sensing, fall detection, intrusion alerts and keystroke detection (digital fingerprint and human recognising).
+- Activity, motion, gesture recognition and sign language decoding
+- Localisation in indoor environments
+- Heart rate and breathing rate monitoring
+
+The survey also points out challenges such as difficulty in generalisation, coexistence/interference with network services and most importantly privacy and security concerns since WiFi CSI can theoretically detect even small scale motions invisibly, through walls without any indication.   
+
 #### WiFi CSI Based Energy-Efficient Drone Detection by Chen et al:
  Researchers used a combined approach of integrating CSI and RSSI through a RL assisted detection model to eliminate radio wave interference in outdoor environments as well reduce the energy consumption for capturing CSI through ESP32-S3. They used a high band pass filter to eliminate false alarms by differentiating birds and drones using vibrations caused due to propellers' rotation. They were able to achieve a decreased false alarm rate, a decreased miss detection rate and reduced energy consumption with this approach. 
 
